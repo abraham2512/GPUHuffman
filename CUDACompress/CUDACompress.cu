@@ -3,7 +3,7 @@
 #include <string.h>
 #include <time.h>
 #include <limits.h>
-#include "include/parallelHeader.h"
+#include "../include/parallelHeader.h"
 #define block_size 1024
 #define MIN_SCRATCH_SIZE 50 * 1024 * 1024
 
