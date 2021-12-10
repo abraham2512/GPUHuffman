@@ -1,16 +1,9 @@
-/*---------------------------------------------------------------------------------------------------------------------------------------------*/
-//Sriram Madhivanan
-//Functions used for GPU and CUDA-MPI implementations
-/*---------------------------------------------------------------------------------------------------------------------------------------------*/
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include "parallelHeader.h"
 
-/*---------------------------------------------------------------------------------------------------------------------------------------------*/
-// sortHuffmanTree nodes based on frequency
-/*---------------------------------------------------------------------------------------------------------------------------------------------*/
 void sortHuffmanTree(int i, int distinctCharacterCount, int combinedHuffmanNodes){
 	int a, b;
 	for (a = combinedHuffmanNodes; a < distinctCharacterCount - 1 + i; a++){
@@ -23,18 +16,14 @@ void sortHuffmanTree(int i, int distinctCharacterCount, int combinedHuffmanNodes
 		}
 	}
 }
-/*---------------------------------------------------------------------------------------------------------------------------------------------*/
-// build tree based on sortHuffmanTree result
-/*---------------------------------------------------------------------------------------------------------------------------------------------*/
+
 void buildHuffmanTree(int i, int distinctCharacterCount, int combinedHuffmanNodes){
 	huffmanTreeNode[distinctCharacterCount + i].count = huffmanTreeNode[combinedHuffmanNodes].count + huffmanTreeNode[combinedHuffmanNodes + 1].count;
 	huffmanTreeNode[distinctCharacterCount + i].left = &huffmanTreeNode[combinedHuffmanNodes];
 	huffmanTreeNode[distinctCharacterCount + i].right = &huffmanTreeNode[combinedHuffmanNodes + 1];
 	head_huffmanTreeNode = &(huffmanTreeNode[distinctCharacterCount + i]);
 }
-/*---------------------------------------------------------------------------------------------------------------------------------------------*/
-// get bitSequence sequence for each char value
-/*---------------------------------------------------------------------------------------------------------------------------------------------*/
+
 void buildHuffmanDictionary(struct huffmanTree *root, unsigned char *bitSequence, unsigned char bitSequenceLength){
 	if (root->left){
 		bitSequence[bitSequenceLength] = 0;
@@ -58,10 +47,7 @@ void buildHuffmanDictionary(struct huffmanTree *root, unsigned char *bitSequence
 		}
 	}
 }
-/*---------------------------------------------------------------------------------------------------------------------------------------------*/
-// generate data offset array 
-// case - single run, no overflow
-/*---------------------------------------------------------------------------------------------------------------------------------------------*/
+
 void createDataOffsetArray(unsigned int *compressedDataOffset, unsigned char* inputFileData, unsigned int inputFileLength){
 	int i;
 	compressedDataOffset[0] = 0;
@@ -72,10 +58,7 @@ void createDataOffsetArray(unsigned int *compressedDataOffset, unsigned char* in
 		compressedDataOffset[inputFileLength] = compressedDataOffset[inputFileLength] + (8 - (compressedDataOffset[inputFileLength] % 8));
 	}		
 }
-/*---------------------------------------------------------------------------------------------------------------------------------------------*/
-// generate data offset array 
-// case - single run, with overflow
-/*---------------------------------------------------------------------------------------------------------------------------------------------*/
+
 void createDataOffsetArray(unsigned int *compressedDataOffset, unsigned char* inputFileData, unsigned int inputFileLength, unsigned int *integerOverflowIndex, unsigned int *bitPaddingFlag, int numBytes){
 	int i, j;
 	// calculate compressed data offset - (1048576 is a safe number that will ensure there is no integer overflow in GPU, it should be minimum 8 * number of threads)
@@ -100,10 +83,7 @@ void createDataOffsetArray(unsigned int *compressedDataOffset, unsigned char* in
 		compressedDataOffset[inputFileLength] = compressedDataOffset[inputFileLength] + (8 - (compressedDataOffset[inputFileLength] % 8));
 	}
 }
-/*---------------------------------------------------------------------------------------------------------------------------------------------*/
-// generate data offset array 
-// case - multiple run, no overflow
-/*---------------------------------------------------------------------------------------------------------------------------------------------*/
+
 void createDataOffsetArray(unsigned int *compressedDataOffset, unsigned char* inputFileData, unsigned int inputFileLength, unsigned int *gpuMemoryOverflowIndex, unsigned int *gpuBitPaddingFlag, long unsigned int mem_req){
 	int i, j;
 	j = 0;
@@ -131,10 +111,7 @@ void createDataOffsetArray(unsigned int *compressedDataOffset, unsigned char* in
 	}
 	gpuMemoryOverflowIndex[j * 2 + 1] = inputFileLength;
 }
-/*---------------------------------------------------------------------------------------------------------------------------------------------*/
-// generate data offset array
-// case - multiple run, with overflow
-/*---------------------------------------------------------------------------------------------------------------------------------------------*/
+
 void createDataOffsetArray(unsigned int *compressedDataOffset, unsigned char* inputFileData, unsigned int inputFileLength, unsigned int *integerOverflowIndex, unsigned int *bitPaddingFlag, unsigned int *gpuMemoryOverflowIndex, unsigned int *gpuBitPaddingFlag, int numBytes, long unsigned int mem_req){
 	int i, j, k;
 	j = 0;
@@ -173,6 +150,3 @@ void createDataOffsetArray(unsigned int *compressedDataOffset, unsigned char* in
 	}
 	gpuMemoryOverflowIndex[j * 2 + 1] = inputFileLength;
 }
-/*---------------------------------------------------------------------------------------------------------------------------------------------*/
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/*---------------------------------------------------------------------------------------------------------------------------------------------*/

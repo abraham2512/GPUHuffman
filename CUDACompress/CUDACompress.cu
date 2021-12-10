@@ -1,8 +1,3 @@
-/*---------------------------------------------------------------------------------------------------------------------------------------------*/
-//Sriram Madhivanan
-//GPU Implementation
-/*---------------------------------------------------------------------------------------------------------------------------------------------*/
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -20,7 +15,7 @@ unsigned int constMemoryFlag = 0;
 
 int main(int argc, char **argv){
 	unsigned int i;
-	unsigned int distinctCharacterCount, combinedHuffmanNodes, inputFileLength, frequency[256];
+	unsigned int distinctCharacters, combinedHuffmanNodes, inputFileLen, frequency[256];
 	unsigned char *inputFileData, bitSequenceLength = 0, bitSequence[255];
 	unsigned int *compressedDataOffset, cpu_time_used;
 	unsigned int integerOverflowFlag;
@@ -35,13 +30,13 @@ int main(int argc, char **argv){
 		printf("try with arguments InputFile and OutputFile");
 		return -1;
 	}
-	// read input file, get inputFileLength and data
+	// read input file, get inputFileLen and data
 	inputFile = fopen(argv[1], "rb");
 	fseek(inputFile, 0, SEEK_END);
-	inputFileLength = ftell(inputFile);
+	inputFileLen = ftell(inputFile);
 	fseek(inputFile, 0, SEEK_SET);
-	inputFileData = (unsigned char *)malloc(inputFileLength * sizeof(unsigned char));
-	fread(inputFileData, sizeof(unsigned char), inputFileLength, inputFile);
+	inputFileData = (unsigned char *)malloc(inputFileLen * sizeof(unsigned char));
+	fread(inputFileData, sizeof(unsigned char), inputFileLen, inputFile);
 	fclose(inputFile);
 	
 	// calculate run duration
@@ -51,30 +46,30 @@ int main(int argc, char **argv){
 	for (i = 0; i < 256; i++){
 		frequency[i] = 0;
 	}
-	for (i = 0; i < inputFileLength; i++){
+	for (i = 0; i < inputFileLen; i++){
 		frequency[inputFileData[i]]++;
 	}
 
 	// initialize nodes of huffman tree
-	distinctCharacterCount = 0;
+	distinctCharacters = 0;
 	for (i = 0; i < 256; i++){
 		if (frequency[i] > 0){
-			huffmanTreeNode[distinctCharacterCount].count = frequency[i];
-			huffmanTreeNode[distinctCharacterCount].letter = i;
-			huffmanTreeNode[distinctCharacterCount].left = NULL;
-			huffmanTreeNode[distinctCharacterCount].right = NULL;
-			distinctCharacterCount++;
+			huffmanTreeNode[distinctCharacters].count = frequency[i];
+			huffmanTreeNode[distinctCharacters].letter = i;
+			huffmanTreeNode[distinctCharacters].left = NULL;
+			huffmanTreeNode[distinctCharacters].right = NULL;
+			distinctCharacters++;
 		}
 	}
 	
 	// build tree 
-	for (i = 0; i < distinctCharacterCount - 1; i++){
+	for (i = 0; i < distinctCharacters - 1; i++){
 		combinedHuffmanNodes = 2 * i;
-		sortHuffmanTree(i, distinctCharacterCount, combinedHuffmanNodes);
-		buildHuffmanTree(i, distinctCharacterCount, combinedHuffmanNodes);
+		sortHuffmanTree(i, distinctCharacters, combinedHuffmanNodes);
+		buildHuffmanTree(i, distinctCharacters, combinedHuffmanNodes);
 	}
 	
-	if(distinctCharacterCount == 1){
+	if(distinctCharacters == 1){
 	  head_huffmanTreeNode = &huffmanTreeNode[0];        
         }
 
@@ -98,7 +93,7 @@ int main(int argc, char **argv){
 	mem_offset = mem_offset % 8 == 0 ? mem_offset : mem_offset + 8 - mem_offset % 8;
 	
 	// other memory requirements
-	mem_data = inputFileLength + (inputFileLength + 1) * sizeof(unsigned int) + sizeof(huffmanDictionary);
+	mem_data = inputFileLen + (inputFileLen + 1) * sizeof(unsigned int) + sizeof(huffmanDictionary);
 	
 	if(mem_free - mem_data < MIN_SCRATCH_SIZE){
 		printf("\nExiting : Not enough memory on GPU\nmem_free = %lu\nmin_mem_req = %lu\n", mem_free, mem_data + MIN_SCRATCH_SIZE);
@@ -113,22 +108,22 @@ int main(int argc, char **argv){
 	printf("	InputFileSize      =%u\n\
 	OutputSize         =%u\n\
 	NumberOfKernel     =%d\n\
-	integerOverflowFlag=%d\n", inputFileLength, mem_offset/8, numKernelRuns, integerOverflowFlag);		
+	integerOverflowFlag=%d\n", inputFileLen, mem_offset/8, numKernelRuns, integerOverflowFlag);		
 	}
 
 	
 	// generate data offset array
-	compressedDataOffset = (unsigned int *)malloc((inputFileLength + 1) * sizeof(unsigned int));
+	compressedDataOffset = (unsigned int *)malloc((inputFileLen + 1) * sizeof(unsigned int));
 
 	// launch kernel
-	lauchCUDAHuffmanCompress(inputFileData, compressedDataOffset, inputFileLength, numKernelRuns, integerOverflowFlag, mem_req);
+	lauchCUDAHuffmanCompress(inputFileData, compressedDataOffset, inputFileLen, numKernelRuns, integerOverflowFlag, mem_req);
 
 	// calculate run duration
 	end = clock();
 	
-	// write src inputFileLength, header and compressed data to output file
+	// write src inputFileLen, header and compressed data to output file
 	compressedFile = fopen(argv[2], "wb");
-	fwrite(&inputFileLength, sizeof(unsigned int), 1, compressedFile);
+	fwrite(&inputFileLen, sizeof(unsigned int), 1, compressedFile);
 	fwrite(frequency, sizeof(unsigned int), 256, compressedFile);
 	fwrite(inputFileData, sizeof(unsigned char), mem_offset / 8, compressedFile);
 	fclose(compressedFile);	
