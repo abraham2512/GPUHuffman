@@ -1,13 +1,5 @@
-/*---------------------------------------------------------------------------------------------------------------------------------------------*/
-//Sriram Madhivanan
-//GPU kernels
-/*---------------------------------------------------------------------------------------------------------------------------------------------*/
-
 #include "parallelHeader.h"
 
-/*---------------------------------------------------------------------------------------------------------------------------------------------*/
-// single run and no overflow
-/*---------------------------------------------------------------------------------------------------------------------------------------------*/
 __global__ void compress(unsigned char *d_inputFileData, unsigned int *d_compressedDataOffset, struct huffmanDictionary *d_huffmanDictionary, unsigned char *d_byteCompressedData, unsigned int d_inputFileLength, unsigned int constMemoryFlag){
 	__shared__ struct huffmanDictionary table;
 	memcpy(&table, d_huffmanDictionary, sizeof(struct huffmanDictionary));
@@ -15,7 +7,6 @@ __global__ void compress(unsigned char *d_inputFileData, unsigned int *d_compres
 	unsigned int i, j, k;
 	unsigned int pos = blockIdx.x * blockDim.x + threadIdx.x;
 	
-	// when shared memory is sufficient
 	if(constMemoryFlag == 0){
 		for(i = pos; i < inputFileLength; i += blockDim.x){
 			for(k = 0; k < table.bitSequenceLength[d_inputFileData[i]]; k++){
@@ -48,9 +39,6 @@ __global__ void compress(unsigned char *d_inputFileData, unsigned int *d_compres
 	}
 }
 
-/*---------------------------------------------------------------------------------------------------------------------------------------------*/
-// single run with overflow
-/*---------------------------------------------------------------------------------------------------------------------------------------------*/
 __global__ void compress(unsigned char *d_inputFileData, unsigned int *d_compressedDataOffset, struct huffmanDictionary *d_huffmanDictionary, unsigned char *d_byteCompressedData, unsigned char *d_temp_overflow, unsigned int d_inputFileLength, unsigned int constMemoryFlag, unsigned int overflowPosition){
 	__shared__ struct huffmanDictionary table;
 	memcpy(&table, d_huffmanDictionary, sizeof(struct huffmanDictionary));
@@ -125,9 +113,6 @@ __global__ void compress(unsigned char *d_inputFileData, unsigned int *d_compres
 	}
 }
 
-/*---------------------------------------------------------------------------------------------------------------------------------------------*/
-// multiple run and no overflow
-/*---------------------------------------------------------------------------------------------------------------------------------------------*/
 __global__ void compress(unsigned char *d_inputFileData, unsigned int *d_compressedDataOffset, struct huffmanDictionary *d_huffmanDictionary, unsigned char *d_byteCompressedData, unsigned int d_lowerPosition, unsigned int constMemoryFlag, unsigned int d_upperPosition){
 	__shared__ struct huffmanDictionary table;
 	memcpy(&table, d_huffmanDictionary, sizeof(struct huffmanDictionary));
@@ -176,9 +161,6 @@ __global__ void compress(unsigned char *d_inputFileData, unsigned int *d_compres
 	}
 }
 
-/*---------------------------------------------------------------------------------------------------------------------------------------------*/
-// multiple run and with overflow
-/*---------------------------------------------------------------------------------------------------------------------------------------------*/
 __global__ void compress(unsigned char *d_inputFileData, unsigned int *d_compressedDataOffset, struct huffmanDictionary *d_huffmanDictionary, unsigned char *d_byteCompressedData, unsigned char *d_temp_overflow, unsigned int d_lowerPosition, unsigned int constMemoryFlag, unsigned int d_upperPosition, unsigned int overflowPosition){
 	__shared__ struct huffmanDictionary table;
 	memcpy(&table, d_huffmanDictionary, sizeof(struct huffmanDictionary));
@@ -261,6 +243,3 @@ __global__ void compress(unsigned char *d_inputFileData, unsigned int *d_compres
 		}
 	}
 }
-/*---------------------------------------------------------------------------------------------------------------------------------------------*/
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/*---------------------------------------------------------------------------------------------------------------------------------------------*/

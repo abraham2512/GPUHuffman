@@ -2,7 +2,7 @@
 #include<stdlib.h>
 #include<string.h>
 #include<time.h>
-#include "../include/serialHeader.h"
+#include "serialHeader.h"
 
 struct huffmanDictionary huffmanDictionary[256];
 struct huffmanTree *head_huffmanTreeNode;

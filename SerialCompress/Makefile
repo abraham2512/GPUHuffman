@@ -1,6 +1,6 @@
 all: 
-	gcc -o ../bin/compress compress.c ../include/serialFunctions.c
+	gcc -o compress compress.c serialFunctions.c
 
 clean:
-	if [ -a ../bin/compress ]; then rm -f ../bin/compress; fi;
+	if [ -a compress ]; then rm -f compress; fi;
 

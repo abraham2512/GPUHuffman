@@ -1,8 +1,7 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../include/parallelHeader.h"
+#include "parallelHeader.h"
 #define block_size 1024
 __constant__ unsigned char d_bitSequenceConstMemory[256][255];
 

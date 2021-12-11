@@ -1,7 +1,7 @@
 all:
-	nvcc -dc CUDACompress.cu ../include/parallelFunctions.cu ../include/kernel.cu ../include/GPUWrapper.cu
-	nvcc *.o -o ../bin/CUDA_compress
+	nvcc -dc CUDACompress.cu parallelFunctions.cu kernel.cu GPUWrapper.cu
+	nvcc *.o -o CUDA_compress
 	rm -rf *.o
 
 clean:
-	if [ -a ../bin/CUDA_compress ]; then rm -f ../bin/CUDA_compress; fi;
+	if [ -a CUDA_compress ]; then rm -f CUDA_compress; fi;
